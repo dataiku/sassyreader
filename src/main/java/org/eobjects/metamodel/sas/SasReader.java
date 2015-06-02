@@ -63,16 +63,15 @@ public class SasReader {
 			0x14, 0x11, 0xcf, 0xbd, 0x92, 0x8, 0x0, 0x9, 0xc7, 0x31, 0x8c,
 			0x18, 0x1f, 0x10, 0x11);
 
-	private final File _file;
+	private final String _file;
+	private final InputStream is;
 
-	public SasReader(File file) {
-		if (file == null) {
-			throw new IllegalArgumentException("file cannot be null");
-		}
-		_file = file;
+	public SasReader(InputStream stream, String desc) {
+	    _file = desc;
+	    is = stream;
 	}
 
-	public File getFile() {
+	public String getFile() {
 		return _file;
 	}
 
@@ -98,14 +97,11 @@ public class SasReader {
 	}
 
 	public void read(SasReaderCallback callback) throws SasReaderException {
-		FileInputStream is = null;
 		try {
-			is = new FileInputStream(_file);
-
 			SasHeader header = readHeader(is);
 			logger.info("({}) Header: {}", _file, header);
 
-			readPages(is, header, callback);
+			readPages(header, callback);
 
 			logger.info("({}) Done!", _file);
 		} catch (Exception e) {
@@ -126,7 +122,7 @@ public class SasReader {
 		}
 	}
 
-	private void readPages(FileInputStream is, SasHeader header,
+	private void readPages(SasHeader header,
 			SasReaderCallback callback) throws Exception {
 		final List<SasSubHeader> subHeaders = new ArrayList<SasSubHeader>();
 		final List<Integer> columnOffsets = new ArrayList<Integer>();
