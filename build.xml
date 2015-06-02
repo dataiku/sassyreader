@@ -1,0 +1,56 @@
+ <project xmlns:ivy="antlib:org.apache.ivy.ant" name="sassyreader" default="jar">
+    <property name="ivy.install.version" value="2.3.0"/>
+    <property name="ivy.jar.dir" value="${basedir}/ivy"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
+    <property name="ivylib.dir" value="lib" />
+    <property name="jar.file" value="dist/dku-sassyreader.jar" />
+    <property name="jar.build" value="build/dku-sassyreader" />
+
+    <target name="clean">
+        <delete dir="build" />
+        <delete dir="dist" />
+    </target>
+    <target name="distclean" depends="clean">
+        <delete dir="ivy" />
+        <delete dir="lib" />
+    </target>
+
+    <target name="download-ivy" unless="skip.download">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+    <target name="install-ivy" depends="download-ivy" description="--> install ivy">
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="resolve"  depends="install-ivy" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve pattern="${ivylib.dir}/[conf]/[artifact]-[revision].[ext]" />
+    </target>
+
+
+    <target name="jar" depends="resolve">
+        <path id="lib.path.id">
+            <fileset dir="lib" />
+        </path>
+        <mkdir dir="${jar.build}" />
+        <javac target="1.6" source="1.6" debug="true" srcdir="src" destdir="${jar.build}" classpathref="lib.path.id" encoding="iso-8859-1" includeantruntime="false">
+            <compilerarg value="-Xlint:all" />
+            <compilerarg value="-Xlint:-path" />
+            <compilerarg value="-Xlint:unchecked" />
+            <compilerarg value="-Xlint:cast" />
+            <compilerarg value="-Xlint:deprecation" />
+            <compilerarg value="-Xlint:empty" />
+            <compilerarg value="-Xlint:fallthrough" />
+            <compilerarg value="-Xlint:overrides" />
+            <compilerarg value="-Xlint:rawtypes" />
+            <compilerarg value="-Xlint:static" />
+            <compilerarg value="-Xlint:try" />
+            <compilerarg value="-Xlint:varargs" />
+        </javac>
+        <jar destfile="${jar.file}" basedir="${jar.build}" />
+    </target>
+</project>

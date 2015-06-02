@@ -1,0 +1,16 @@
+<ivy-module version="2.0">
+    <info organisation="com.dataiku.org.eobjects" module="sassyreader"/>
+    <configurations>
+        <conf name="core" />
+    </configurations>
+
+    <dependencies defaultconfmapping="core -> default">
+        <!-- Required by core -->
+        <dependency org="log4j" name="log4j" rev="1.2.15">
+            <exclude org="com.sun.jdmk"/>
+            <exclude org="com.sun.jmx"/>
+            <exclude org="javax.jms"/>
+        </dependency>
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.7.12"/>
+    </dependencies>
+</ivy-module>
