@@ -62,6 +62,11 @@ public class SasReader {
 			0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xc2, 0xea, 0x81, 0x60, 0xb3,
 			0x14, 0x11, 0xcf, 0xbd, 0x92, 0x8, 0x0, 0x9, 0xc7, 0x31, 0x8c,
 			0x18, 0x1f, 0x10, 0x11);
+	
+	
+	private static final int PAGE_BIT_OFFSET_X86 = 16;
+	private static final int PAGE_BIT_OFFSET_X64 = 32;
+	private static final int PAGE_TYPE_OFFSET = 0;
 
 	private final String _file;
 	private final InputStream is;
@@ -151,7 +156,7 @@ public class SasReader {
 				break;
 			}
 
-			byte pageType = IO.readByte(pageData, 17);
+			short pageType = IO.readShort(pageData, PAGE_BIT_OFFSET_X86 + PAGE_TYPE_OFFSET);
 
 			switch (pageType) {
 			case 0:
