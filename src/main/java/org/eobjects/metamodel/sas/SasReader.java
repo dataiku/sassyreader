@@ -19,13 +19,12 @@
  */
 package org.eobjects.metamodel.sas;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -138,7 +137,8 @@ public class SasReader {
 		int rowCount = 0;
 
 		final int pageSize = header.getPageSize();
-		final int pageCount = header.getPageCount();
+		final long pageCount = header.getPageCount();
+		boolean u64 = header.isU64();
 
 		// these variables will define the default amount of rows per page and
 		// other defaults
@@ -156,7 +156,8 @@ public class SasReader {
 				break;
 			}
 
-			short pageType = IO.readShort(pageData, PAGE_BIT_OFFSET_X86 + PAGE_TYPE_OFFSET);
+			int pageTypeOffset = u64 ? PAGE_BIT_OFFSET_X64 : PAGE_BIT_OFFSET_X86;
+			short pageType = IO.readShort(pageData, pageTypeOffset + PAGE_TYPE_OFFSET);
 
 			switch (pageType) {
 			case 0:
@@ -170,6 +171,8 @@ public class SasReader {
 				logger.info("({}) page type not fully supported: {}", _file,
 						pageType);
 				break;
+			case -28672:
+				throw new SasReaderException("Page " + pageNumber + " is compressed. This type of files is not supported.");
 			default:
 				throw new SasReaderException("Page " + pageNumber
 						+ " has unknown type: " + pageType);
@@ -432,23 +435,57 @@ public class SasReader {
 			throw new SasReaderException("Magic number mismatch!");
 		}
 
-		final int pageSize = IO.readInt(header, 200);
+		final byte byte32 = IO.readByte(header, 32);
+		final byte byte35 = IO.readByte(header, 35);
+		final byte byte37 = IO.readByte(header, 37);
+
+		int a2 = byte32 == 0x33 ? 4 : 0;
+		int a1 = byte35 == 0x33 ? 4 : 0;
+
+		boolean bigEndian = byte37 == 0;
+		boolean u64 = a2 == 4;
+
+		logger.debug("Endianness: {}", (bigEndian ? "big" : "little"));
+		logger.debug("U64? {}", String.valueOf(u64));
+		logger.debug("a1={}, a2={}", a1, a2);
+
+		final String sasFile = IO.readCString(header, 84, 8);
+		final String datasetName = IO.readCString(header, 92, 64).trim();
+		final String fileType = IO.readCString(header, 156, 8).trim();
+		final Date dateCreated = new Date(Math.round((IO.readDouble(header, 164+a1) - 315619200)*1000));
+		final Date dateModified = new Date(Math.round((IO.readDouble(header, 172+a1) - 315619200)*1000));
+
+		final int headerLength = IO.readInt(header, 196+a1);
+
+		final int pageSize = IO.readInt(header, 200+a1);
 		if (pageSize < 0) {
 			throw new SasReaderException("Page size is negative: " + pageSize);
 		}
 
-		final int pageCount = IO.readInt(header, 204);
+		final long pageCount = u64 ? IO.readLong(header, 204 + a1) : IO.readInt(header, 204 + a1);
 		if (pageCount < 1) {
-			throw new SasReaderException("Page count is not positive: "
-					+ pageCount);
+			throw new SasReaderException("Page count is not positive: " + pageCount);
 		}
 
-		logger.info("({}) page size={}, page count={}", new Object[] { _file,
-				pageSize, pageCount });
+		logger.info("({}) page size={}, page count={}", _file, pageSize, pageCount);
 
-		final String sasRelease = IO.readString(header, 216, 8);
-		final String sasHost = IO.readString(header, 224, 8);
+		final String sasRelease = IO.readCString(header, 216 + a1 + a2, 8);
+		final String sasHost = IO.readCString(header, 224+a1+a2, 16);
 
-		return new SasHeader(sasRelease, sasHost, pageSize, pageCount);
+		final String osVersion = IO.readCString(header, 240+a1+a2, 16);
+		final String osVendor = IO.readCString(header, 256+a1+a2, 16);
+		final String osName = IO.readCString(header, 272+a1+a2, 16);
+
+		final int remainingHeaderLength = headerLength - 1024;
+		if (remainingHeaderLength > 0) {
+			byte[] remainingHeader = new byte[remainingHeaderLength];
+			read = is.read(remainingHeader);
+			if (read != remainingHeaderLength) {
+				throw new SasReaderException("Missing end of header (not a sas7bdat file?). Expected " + remainingHeaderLength + " bytes but read " + read + " bytes");
+			}
+		}
+
+		return new SasHeader(u64, pageSize, pageCount, sasRelease, sasHost, sasFile, datasetName, fileType, dateCreated, dateModified, osVersion, osVendor, osName);
 	}
+
 }

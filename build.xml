@@ -37,7 +37,7 @@
             <fileset dir="lib" />
         </path>
         <mkdir dir="${jar.build}" />
-        <javac target="1.6" source="1.6" debug="true" srcdir="src" destdir="${jar.build}" classpathref="lib.path.id" encoding="iso-8859-1" includeantruntime="false">
+        <javac target="1.7" source="1.7" debug="true" srcdir="src/main/java" destdir="${jar.build}" classpathref="lib.path.id" encoding="iso-8859-1" includeantruntime="false">
             <compilerarg value="-Xlint:all" />
             <compilerarg value="-Xlint:-path" />
             <compilerarg value="-Xlint:unchecked" />
