@@ -19,24 +19,55 @@
  */
 package org.eobjects.metamodel.sas;
 
+import java.util.Date;
+
 /**
  * Represents the header metadata in the sas7bdat file format.
- * 
+ *
  * @author Kasper Sørensen
  */
 final class SasHeader {
 
+	private final boolean u64;
+	private final int pageSize;
+	private final long pageCount;
 	private final String sasRelease;
 	private final String sasHost;
-	private final int pageSize;
-	private final int pageCount;
+	private final String sasFile;
+	private final String datasetName;
+	private final String fileType;
+	private final Date dateCreated;
+	private final Date dateModified;
+	private final String osVersion;
+	private final String osVendor;
+	private final String osName;
 
-	public SasHeader(String sasRelease, String sasHost, int pageSize,
-			int pageCount) {
-		this.sasRelease = sasRelease;
-		this.sasHost = sasHost;
+	public SasHeader(boolean u64, int pageSize, long pageCount, String sasRelease, String sasHost, String sasFile, String datasetName, String fileType, Date dateCreated, Date dateModified, String osVersion, String osVendor, String osName) {
+		this.u64 = u64;
 		this.pageSize = pageSize;
 		this.pageCount = pageCount;
+		this.sasRelease = sasRelease;
+		this.sasHost = sasHost;
+		this.sasFile = sasFile;
+		this.datasetName = datasetName;
+		this.fileType = fileType;
+		this.dateCreated = dateCreated;
+		this.dateModified = dateModified;
+		this.osVersion = osVersion;
+		this.osVendor = osVendor;
+		this.osName = osName;
+	}
+
+	public boolean isU64() {
+		return u64;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public long getPageCount() {
+		return pageCount;
 	}
 
 	public String getSasRelease() {
@@ -47,17 +78,53 @@ final class SasHeader {
 		return sasHost;
 	}
 
-	public int getPageSize() {
-		return pageSize;
+	public String getSasFile() {
+		return sasFile;
 	}
 
-	public int getPageCount() {
-		return pageCount;
+	public String getDatasetName() {
+		return datasetName;
+	}
+
+	public String getFileType() {
+		return fileType;
+	}
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public Date getDateModified() {
+		return dateModified;
+	}
+
+	public String getOsVersion() {
+		return osVersion;
+	}
+
+	public String getOsVendor() {
+		return osVendor;
+	}
+
+	public String getOsName() {
+		return osName;
 	}
 
 	@Override
 	public String toString() {
-		return "SasHeader [sasRelease=" + sasRelease + ", sasHost=" + sasHost
-				+ ", pageSize=" + pageSize + ", pageCount=" + pageCount + "]";
+		return "SasHeader [" + "u64=" + u64 +
+				", pageSize=" + pageSize +
+				", pageCount=" + pageCount +
+				", sasRelease='" + sasRelease + '\'' +
+				", sasHost='" + sasHost + '\'' +
+				", sasFile='" + sasFile + '\'' +
+				", datasetName='" + datasetName + '\'' +
+				", fileType='" + fileType + '\'' +
+				", dateCreated=" + dateCreated +
+				", dateModified=" + dateModified +
+				", osVersion='" + osVersion + '\'' +
+				", osVendor='" + osVendor + '\'' +
+				", osName='" + osName + '\'' +
+				']';
 	}
 }

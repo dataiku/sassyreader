@@ -60,8 +60,19 @@ final class IO {
 	public static String readString(byte[] buffer, int off, int len) {
 		byte[] subset = readBytes(buffer, off, len);
 
-		String str = getString(subset, CHARSET_NAME);
-		return str;
+		return getString(subset, CHARSET_NAME);
+	}
+
+	/**
+	 * Read a fixed-length string but trim the ending \u0000 characters.
+	 */
+	public static String readCString(byte[] header, int off, int len) {
+		String result = readString(header, off, len);
+		int length = result.length();
+		while (length > 0 && result.charAt(length - 1) == '\u0000') {
+			length--;
+		}
+		return result.substring(0, length);
 	}
 
 	private static String getString(byte[] bytes, String encoding) {
@@ -87,6 +98,12 @@ final class IO {
 		ByteBuffer bb = ByteBuffer.wrap(buffer);
 		bb.order(ByteOrder.LITTLE_ENDIAN);
 		return bb.getInt(off);
+	}
+
+	public static long readLong(byte[] buffer, int off) {
+		ByteBuffer bb = ByteBuffer.wrap(buffer);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
+		return bb.getLong(off);
 	}
 
 	public static double readDouble(byte[] buffer, int off) {
