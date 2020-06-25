@@ -1,5 +1,5 @@
  <project xmlns:ivy="antlib:org.apache.ivy.ant" name="sassyreader" default="jar">
-    <property name="ivy.install.version" value="2.3.0"/>
+    <property name="ivy.install.version" value="2.5.0"/>
     <property name="ivy.jar.dir" value="${basedir}/ivy"/>
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
 
@@ -18,7 +18,7 @@
 
     <target name="download-ivy" unless="skip.download">
         <mkdir dir="${ivy.jar.dir}"/>
-        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+        <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
     </target>
     <target name="install-ivy" depends="download-ivy" description="--> install ivy">
         <path id="ivy.lib.path">
@@ -37,7 +37,7 @@
             <fileset dir="lib" />
         </path>
         <mkdir dir="${jar.build}" />
-        <javac target="1.6" source="1.6" debug="true" srcdir="src" destdir="${jar.build}" classpathref="lib.path.id" encoding="iso-8859-1" includeantruntime="false">
+        <javac target="1.8" source="1.8" debug="true" srcdir="src" destdir="${jar.build}" classpathref="lib.path.id" encoding="iso-8859-1" includeantruntime="false">
             <compilerarg value="-Xlint:all" />
             <compilerarg value="-Xlint:-path" />
             <compilerarg value="-Xlint:unchecked" />

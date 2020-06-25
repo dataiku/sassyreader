@@ -12,5 +12,6 @@
             <exclude org="javax.jms"/>
         </dependency>
         <dependency org="org.slf4j" name="slf4j-api" rev="1.7.12"/>
+        <dependency org="junit" name="junit" rev="4.13"/>
     </dependencies>
 </ivy-module>
